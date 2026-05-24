@@ -1,0 +1,410 @@
+{% extends "base.html" %}
+{% block title %}Dashboard Admin — LaporAman{% endblock %}
+
+{% block extra_head %}
+<style>
+  /* ── Admin-specific styles ─────────────────── */
+  .breadcrumb {
+    display: flex; align-items: center; gap: 6px;
+    font-size: 0.78rem; color: rgba(255,255,255,0.55);
+    margin-bottom: 10px;
+  }
+  .breadcrumb a { color: rgba(255,255,255,0.55); text-decoration: none; }
+  .breadcrumb a:hover { color: rgba(255,255,255,0.85); }
+  .breadcrumb-sep { color: rgba(255,255,255,0.3); }
+
+  /* Table striped */
+  tbody tr:nth-child(even) td { background: #fafbfc; }
+  tbody tr:hover td { background: var(--secondary-light) !important; transition: background 0.12s; }
+
+  /* Modal dialog */
+  dialog {
+    border: none; border-radius: var(--radius-lg);
+    box-shadow: 0 20px 60px rgba(0,40,85,0.2);
+    padding: 0; width: 520px; max-width: 95vw;
+    background: var(--surface);
+  }
+  dialog::backdrop { background: rgba(0,40,85,0.45); }
+  .modal-header {
+    background: var(--primary);
+    padding: 18px 24px;
+    border-radius: var(--radius-lg) var(--radius-lg) 0 0;
+    display: flex; align-items: center; justify-content: space-between;
+  }
+  .modal-title { color: #fff; font-size: 0.95rem; font-weight: 700; }
+  .modal-close {
+    background: rgba(255,255,255,0.15); border: none; color: #fff;
+    width: 30px; height: 30px; border-radius: 50%;
+    cursor: pointer; font-size: 1rem; display: flex;
+    align-items: center; justify-content: center;
+    transition: background 0.15s;
+  }
+  .modal-close:hover { background: rgba(255,255,255,0.25); }
+  .modal-body { padding: 24px; display: flex; flex-direction: column; gap: 16px; }
+  .modal-footer {
+    padding: 16px 24px;
+    border-top: 1px solid var(--border);
+    display: flex; justify-content: flex-end; gap: 10px;
+    border-radius: 0 0 var(--radius-lg) var(--radius-lg);
+  }
+
+  /* Section heading */
+  .section-title {
+    font-size: 0.75rem; font-weight: 700;
+    text-transform: uppercase; letter-spacing: 0.07em;
+    color: var(--text-3); margin-bottom: 14px;
+    padding-bottom: 8px; border-bottom: 2px solid var(--border);
+  }
+
+  /* Action buttons in table */
+  .action-btn {
+    display: inline-flex; align-items: center; gap: 5px;
+    font-size: 0.75rem; font-weight: 600;
+    padding: 5px 11px; border-radius: var(--radius-sm);
+    border: 1.5px solid transparent; cursor: pointer;
+    text-decoration: none; transition: all 0.12s; font-family: inherit;
+  }
+  .action-edit   { background: var(--secondary-light); color: var(--secondary); border-color: rgba(10,88,202,0.2); }
+  .action-edit:hover { background: #c5dbf7; }
+  .action-delete { background: var(--tertiary-light);  color: var(--tertiary); border-color: rgba(255,65,77,0.2); }
+  .action-delete:hover { background: #ffd6d8; }
+
+  /* Gunakan :last-child CSS selector, tanpa Jinja2 di style attribute */
+  .user-row { border-bottom: 1px solid var(--border); }
+  .user-row:last-child { border-bottom: none; }
+</style>
+{% endblock %}
+
+{% block content %}
+
+<!-- Page Hero -->
+<div class="page-hero">
+  <div class="container">
+    <div class="breadcrumb">
+      <a href="/"><i class="bi bi-house-fill"></i> Beranda</a>
+      <span class="breadcrumb-sep">›</span>
+      <span>Panel Admin</span>
+    </div>
+    <div style="display:flex; align-items:center; justify-content:space-between; flex-wrap:wrap; gap:12px;">
+      <div>
+        <div style="display:flex; align-items:center; gap:8px; margin-bottom:8px; flex-wrap:wrap;">
+          {% if sqli_used %}
+          <span class="badge badge-red"><i class="bi bi-lightning-fill"></i> Diakses via SQL Injection</span>
+          {% else %}
+          <span class="badge badge-green"><i class="bi bi-shield-check"></i> Login Normal</span>
+          {% endif %}
+        </div>
+        <h1>Dashboard Administrator</h1>
+        <p>Masuk sebagai <strong style="color:#fff;">{{ admin_user }}</strong></p>
+      </div>
+      <div style="display:flex; gap:8px; flex-wrap:wrap;">
+        <button onclick="document.getElementById('modal-tambah').showModal()"
+                class="btn btn-secondary" style="background:#fff; color:var(--primary); border-color:#fff;">
+          <i class="bi bi-plus-lg"></i> Tambah Laporan
+        </button>
+        <a href="/admin/logout" class="btn btn-ghost"
+           style="background:rgba(255,255,255,0.1); color:#fff; border-color:rgba(255,255,255,0.25);">
+          <i class="bi bi-box-arrow-right"></i> Logout
+        </a>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div class="container" style="padding: 32px 24px 60px;">
+
+  <!-- Stats Row -->
+  <div class="grid-3" style="margin-bottom:28px;">
+    <div class="stat-card">
+      <div style="display:flex; align-items:center; justify-content:space-between; margin-bottom:8px;">
+        <div class="stat-label">Total Laporan</div>
+        <span style="width:36px;height:36px;background:var(--secondary-light);border-radius:8px;display:flex;align-items:center;justify-content:center;">
+          <i class="bi bi-inbox-fill" style="color:var(--secondary);"></i>
+        </span>
+      </div>
+      <div class="stat-value" style="color:var(--secondary);">{{ total }}</div>
+    </div>
+    <div class="stat-card">
+      <div style="display:flex; align-items:center; justify-content:space-between; margin-bottom:8px;">
+        <div class="stat-label">Akun Admin</div>
+        <span style="width:36px;height:36px;background:var(--green-light);border-radius:8px;display:flex;align-items:center;justify-content:center;">
+          <i class="bi bi-people-fill" style="color:var(--green);"></i>
+        </span>
+      </div>
+      <div class="stat-value" style="color:var(--green);">{{ users | length }}</div>
+    </div>
+    <div class="stat-card">
+      <div style="display:flex; align-items:center; justify-content:space-between; margin-bottom:8px;">
+        <div class="stat-label">Kerentanan CTF</div>
+        <span style="width:36px;height:36px;background:var(--tertiary-light);border-radius:8px;display:flex;align-items:center;justify-content:center;">
+          <i class="bi bi-bug-fill" style="color:var(--tertiary);"></i>
+        </span>
+      </div>
+      <div class="stat-value" style="color:var(--tertiary);">2</div>
+    </div>
+  </div>
+
+  {% if sqli_used %}
+  <div class="info-box danger" style="margin-bottom:20px; align-items:center;">
+    <i class="bi bi-lightning-fill" style="flex-shrink:0;"></i>
+    <span><strong>SQL Injection Bypass Berhasil!</strong> &mdash; Anda masuk ke panel admin tanpa mengetahui password yang sah.</span>
+  </div>
+  {% endif %}
+
+  <div style="display:grid; grid-template-columns:1fr 320px; gap:24px; align-items:start;">
+
+    <!-- ── MAIN: Reports Table (CRUD) ─────────── -->
+    <div class="card">
+      <div class="card-header">
+        <div class="card-icon" style="background:var(--primary-light); color:var(--primary);">
+          <i class="bi bi-table"></i>
+        </div>
+        <div style="flex:1;">
+          <div class="card-title">Manajemen Laporan</div>
+          <div class="card-subtitle">{{ total }} laporan tercatat — Create, Read, Update, Delete</div>
+        </div>
+        <button onclick="document.getElementById('modal-tambah').showModal()"
+                class="btn btn-primary btn-sm">
+          <i class="bi bi-plus-lg"></i> Tambah
+        </button>
+      </div>
+
+      {% if not laporan %}
+      <div style="text-align:center; padding:56px 24px;">
+        <i class="bi bi-inbox" style="font-size:2.5rem; color:var(--text-3); display:block; margin-bottom:12px;"></i>
+        <div style="font-weight:600; color:var(--text-2);">Belum ada laporan</div>
+        <button onclick="document.getElementById('modal-tambah').showModal()"
+                class="btn btn-primary btn-sm" style="margin-top:14px;">
+          <i class="bi bi-plus-lg"></i> Tambah Laporan Pertama
+        </button>
+      </div>
+      {% else %}
+      <div class="table-wrap">
+        <table>
+          <thead>
+            <tr>
+              <th style="width:48px;">#</th>
+              <th>Nama Pelapor</th>
+              <th>Judul Laporan</th>
+              <th>Isi (Ringkasan)</th>
+              <th style="width:130px; text-align:center;">Aksi</th>
+            </tr>
+          </thead>
+          <tbody>
+            {% for lap in laporan %}
+            <tr>
+              <td>
+                <span class="badge badge-blue font-mono" style="font-size:0.68rem;">#{{ lap.id }}</span>
+              </td>
+              <td style="font-weight:600; color:var(--primary); white-space:nowrap;">
+                {{ lap.nama_pelapor }}
+              </td>
+              <td style="color:var(--text-2); max-width:200px;" class="truncate">
+                {{ lap.judul }}
+              </td>
+              <td style="color:var(--text-3); max-width:180px;" class="truncate">
+                {{ lap.isi_laporan | striptags | truncate(50) }}
+              </td>
+              <td style="text-align:center; white-space:nowrap;">
+                <!-- Edit Button -->
+                <button class="action-btn action-edit"
+                        data-id="{{ lap.id }}"
+                        data-nama="{{ lap.nama_pelapor | e }}"
+                        data-judul="{{ lap.judul | e }}"
+                        data-isi="{{ lap.isi_laporan | e }}"
+                        onclick="openEditBtn(this)">
+                  <i class="bi bi-pencil-fill"></i> Edit
+                </button>
+                <!-- Delete Button -->
+                <a href="/admin/hapus/{{ lap.id }}" class="action-btn action-delete"
+                   onclick="return confirm('Hapus laporan #{{ lap.id }}?')">
+                  <i class="bi bi-trash3-fill"></i> Hapus
+                </a>
+              </td>
+            </tr>
+            {% endfor %}
+          </tbody>
+        </table>
+      </div>
+      {% endif %}
+    </div>
+
+    <!-- ── SIDEBAR ─────────────────────────────── -->
+    <div style="display:flex; flex-direction:column; gap:16px;">
+
+      <!-- DB Users (Hashed) -->
+      <div class="card">
+        <div class="card-header">
+          <div class="card-icon" style="background:var(--tertiary-light); color:var(--tertiary);">
+            <i class="bi bi-database-lock"></i>
+          </div>
+          <div>
+            <div class="card-title">DB Dump: Users</div>
+            <div class="card-subtitle" style="color:var(--green);">
+              <i class="bi bi-shield-check me-1"></i>Password di-hash
+            </div>
+          </div>
+        </div>
+        {% for u in users %}
+        <div class="user-row" style="padding:12px 18px;">
+          <div style="display:flex; align-items:center; justify-content:space-between; margin-bottom:6px;">
+            <span style="font-weight:700; font-size:0.88rem; color:var(--primary);">{{ u.username }}</span>
+            <span class="badge badge-blue" style="font-size:0.65rem;">scrypt hash</span>
+          </div>
+          <code class="danger" style="font-size:0.68rem; display:block; line-height:1.6; word-break:break-all; padding:6px 8px; border-radius:6px;">
+            {{ u.password[:68] }}…
+          </code>
+        </div>
+        {% endfor %}
+        <div style="padding:12px 18px; border-top:1px solid var(--border);">
+          <div class="info-box success" style="padding:9px 11px; font-size:0.78rem; line-height:1.5;">
+            <i class="bi bi-shield-check" style="flex-shrink:0;"></i>
+            <span>Hash <code class="blue">scrypt</code> aktif — DB bocor → attacker dapat hash, bukan plaintext. <strong>Tapi SQLi bypass tetap bekerja!</strong></span>
+          </div>
+        </div>
+      </div>
+
+      <!-- CTF Checklist -->
+      <div class="card">
+        <div class="card-header">
+          <div class="card-icon" style="background:#fef9c3; color:#ca8a04;">
+            <i class="bi bi-trophy-fill"></i>
+          </div>
+          <div>
+            <div class="card-title">CTF Checklist</div>
+            <div class="card-subtitle">Progress eksploitasi</div>
+          </div>
+        </div>
+        <div class="card-body" style="display:flex; flex-direction:column; gap:8px;">
+
+          <div style="display:flex; gap:10px; padding:10px 12px; background:var(--green-light); border:1px solid rgba(22,163,74,0.2); border-radius:8px;">
+            <i class="bi bi-check-circle-fill" style="color:var(--green); flex-shrink:0; font-size:1rem; margin-top:1px;"></i>
+            <div style="font-size:0.81rem;">
+              <div style="font-weight:700; color:var(--green);">Admin Panel Diakses ✓</div>
+              <div style="color:#166534;">SQLi login bypass berhasil</div>
+            </div>
+          </div>
+
+          <div style="display:flex; gap:10px; padding:10px 12px; background:var(--bg); border:1px solid var(--border); border-radius:8px;">
+            <i class="bi bi-circle" style="color:var(--text-3); flex-shrink:0; font-size:1rem; margin-top:1px;"></i>
+            <div style="font-size:0.81rem;">
+              <div style="font-weight:600; color:var(--text-2);">Stored XSS</div>
+              <div style="color:var(--text-3);">
+                Kirim payload di <a href="/" style="color:var(--secondary);">form laporan</a>,
+                cek di <a href="/laporan" style="color:var(--secondary);">daftar laporan</a>
+              </div>
+            </div>
+          </div>
+
+          <div style="display:flex; gap:10px; padding:10px 12px; background:var(--bg); border:1px solid var(--border); border-radius:8px;">
+            <i class="bi bi-circle" style="color:var(--text-3); flex-shrink:0; font-size:1rem; margin-top:1px;"></i>
+            <div style="font-size:0.81rem;">
+              <div style="font-weight:600; color:var(--text-2);">Crack Hash Password</div>
+              <div style="color:var(--text-3);">Crack hash di atas via hashcat / john</div>
+            </div>
+          </div>
+
+        </div>
+      </div>
+
+    </div><!-- /sidebar -->
+  </div><!-- /grid -->
+</div>
+
+<!-- ════════════════════════════════════════════ -->
+<!-- Modal: TAMBAH LAPORAN (Create)              -->
+<!-- ════════════════════════════════════════════ -->
+<dialog id="modal-tambah">
+  <div class="modal-header">
+    <span class="modal-title"><i class="bi bi-plus-lg me-2"></i>Tambah Laporan Baru</span>
+    <button class="modal-close" onclick="document.getElementById('modal-tambah').close()">✕</button>
+  </div>
+  <form method="POST" action="/admin/tambah">
+    <div class="modal-body">
+      <div class="field" style="margin-bottom:0;">
+        <label for="t-nama">Nama Pelapor</label>
+        <input class="input" type="text" id="t-nama" name="nama_pelapor" placeholder="Nama lengkap pelapor" required />
+      </div>
+      <div class="field" style="margin-bottom:0;">
+        <label for="t-judul">Judul Laporan</label>
+        <input class="input" type="text" id="t-judul" name="judul" placeholder="Judul singkat laporan" required />
+      </div>
+      <div class="field" style="margin-bottom:0;">
+        <label for="t-isi" style="display:flex; align-items:center; gap:7px;">
+          Isi Laporan
+          <span class="vtag"><i class="bi bi-bug"></i> XSS Point</span>
+        </label>
+        <textarea id="t-isi" name="isi_laporan" rows="4" placeholder="Isi laporan (tidak disanitasi — coba XSS payload!)" required></textarea>
+      </div>
+    </div>
+    <div class="modal-footer">
+      <button type="button" class="btn btn-ghost" onclick="document.getElementById('modal-tambah').close()">Batal</button>
+      <button type="submit" class="btn btn-primary"><i class="bi bi-plus-lg"></i> Simpan Laporan</button>
+    </div>
+  </form>
+</dialog>
+
+<!-- ════════════════════════════════════════════ -->
+<!-- Modal: EDIT LAPORAN (Update)                -->
+<!-- ════════════════════════════════════════════ -->
+<dialog id="modal-edit">
+  <div class="modal-header">
+    <span class="modal-title"><i class="bi bi-pencil-fill me-2"></i>Edit Laporan <span id="edit-id-label">#</span></span>
+    <button class="modal-close" onclick="document.getElementById('modal-edit').close()">✕</button>
+  </div>
+  <form method="POST" id="form-edit">
+    <div class="modal-body">
+      <div class="field" style="margin-bottom:0;">
+        <label for="e-nama">Nama Pelapor</label>
+        <input class="input" type="text" id="e-nama" name="nama_pelapor" required />
+      </div>
+      <div class="field" style="margin-bottom:0;">
+        <label for="e-judul">Judul Laporan</label>
+        <input class="input" type="text" id="e-judul" name="judul" required />
+      </div>
+      <div class="field" style="margin-bottom:0;">
+        <label for="e-isi" style="display:flex; align-items:center; gap:7px;">
+          Isi Laporan
+          <span class="vtag"><i class="bi bi-bug"></i> XSS Point</span>
+        </label>
+        <textarea id="e-isi" name="isi_laporan" rows="4" required></textarea>
+      </div>
+    </div>
+    <div class="modal-footer">
+      <button type="button" class="btn btn-ghost" onclick="document.getElementById('modal-edit').close()">Batal</button>
+      <button type="submit" class="btn btn-primary"><i class="bi bi-check-lg"></i> Simpan Perubahan</button>
+    </div>
+  </form>
+</dialog>
+
+{% endblock %}
+
+{% block extra_js %}
+<script>
+  function openEditBtn(btn) {
+    // Baca data dari data-* attributes — HTML entities otomatis di-decode oleh browser
+    openEdit(
+      btn.dataset.id,
+      btn.dataset.nama,
+      btn.dataset.judul,
+      btn.dataset.isi
+    );
+  }
+
+  function openEdit(id, nama, judul, isi) {
+    document.getElementById('edit-id-label').textContent = '#' + id;
+    document.getElementById('form-edit').action = '/admin/edit/' + id;
+    document.getElementById('e-nama').value  = nama;
+    document.getElementById('e-judul').value = judul;
+    document.getElementById('e-isi').value   = isi;
+    document.getElementById('modal-edit').showModal();
+  }
+
+  // Close modal on backdrop click
+  ['modal-tambah', 'modal-edit'].forEach(id => {
+    document.getElementById(id).addEventListener('click', function(e) {
+      if (e.target === this) this.close();
+    });
+  });
+</script>
+{% endblock %}

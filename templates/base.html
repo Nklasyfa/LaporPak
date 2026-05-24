@@ -1,0 +1,433 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>{% block title %}LaporAman{% endblock %}</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css" />
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    :root {
+      /* ── LaporAman Integrity System — Design Tokens ── */
+      --primary:        #002855;
+      --primary-mid:    #003d7a;
+      --primary-light:  #e8eef7;
+      --secondary:      #0A58CA;
+      --secondary-light:#ddeafb;
+      --tertiary:       #FF414D;
+      --tertiary-light: #fff0f1;
+      --neutral:        #4F4F4F;
+      --neutral-light:  #f5f5f5;
+
+      --bg:       #F2F4F8;
+      --surface:  #FFFFFF;
+      --border:   #E2E8F0;
+      --border-hi:#CBD5E1;
+
+      --text:     #002855;
+      --text-2:   #4F4F4F;
+      --text-3:   #94A3B8;
+
+      --green:      #16A34A;
+      --green-light:#dcfce7;
+
+      --shadow-sm: 0 1px 3px rgba(0,40,85,0.07), 0 1px 2px rgba(0,40,85,0.04);
+      --shadow:    0 4px 16px rgba(0,40,85,0.08), 0 2px 6px rgba(0,40,85,0.04);
+
+      --radius-sm: 6px;
+      --radius:    10px;
+      --radius-lg: 16px;
+      --mono: 'JetBrains Mono', monospace;
+    }
+
+    html { scroll-behavior: smooth; }
+
+    body {
+      font-family: 'Inter', system-ui, sans-serif;
+      background: var(--bg);
+      color: var(--text-2);
+      min-height: 100vh;
+      display: flex; flex-direction: column;
+      line-height: 1.6;
+      -webkit-font-smoothing: antialiased;
+    }
+    main { flex: 1; }
+
+    ::-webkit-scrollbar { width: 6px; }
+    ::-webkit-scrollbar-track { background: var(--bg); }
+    ::-webkit-scrollbar-thumb { background: var(--border-hi); border-radius: 99px; }
+
+    /* ── CTF Strip ─────────────────────────── */
+    .ctf-strip {
+      background: var(--tertiary);
+      padding: 5px 0;
+      text-align: center;
+      font-size: 0.72rem;
+      font-weight: 600;
+      color: #fff;
+      letter-spacing: 0.04em;
+    }
+    .ctf-strip code {
+      font-family: var(--mono);
+      background: rgba(255,255,255,0.2);
+      padding: 1px 6px; border-radius: 4px;
+      font-size: 0.68rem; color: #fff;
+    }
+
+    /* ── Navbar ────────────────────────────── */
+    .navbar {
+      background: var(--primary);
+      border-bottom: 3px solid var(--secondary);
+      position: sticky; top: 0; z-index: 100;
+      padding: 0 24px;
+    }
+    .navbar-inner {
+      max-width: 1120px; margin: 0 auto;
+      display: flex; align-items: center; justify-content: space-between;
+      height: 64px;
+    }
+
+    /* Logo */
+    .nav-logo { display: flex; align-items: center; gap: 12px; text-decoration: none; }
+    .logo-mark {
+      width: 40px; height: 40px;
+      background: #fff;
+      border-radius: 50%;
+      display: flex; align-items: center; justify-content: center;
+      flex-shrink: 0;
+      position: relative;
+    }
+    .logo-mark svg { width: 24px; height: 24px; }
+    .logo-text .logo-name {
+      font-size: 1rem; font-weight: 800;
+      color: #fff; letter-spacing: -0.02em; line-height: 1;
+    }
+    .logo-text .logo-sub {
+      font-size: 0.67rem; color: rgba(255,255,255,0.55);
+      font-weight: 500; letter-spacing: 0.02em; line-height: 1.2;
+    }
+
+    /* Nav links */
+    .nav-links { display: flex; align-items: center; gap: 2px; }
+    .nav-link {
+      color: rgba(255,255,255,0.7);
+      text-decoration: none;
+      font-size: 0.85rem; font-weight: 500;
+      padding: 7px 14px; border-radius: var(--radius-sm);
+      transition: all 0.15s;
+      display: flex; align-items: center; gap: 7px;
+      border: 1px solid transparent;
+    }
+    .nav-link:hover { color: #fff; background: rgba(255,255,255,0.1); }
+    .nav-link.active { color: #fff; background: rgba(255,255,255,0.12); }
+    .nav-link-red {
+      color: #fff;
+      background: var(--tertiary);
+      border-color: rgba(255,255,255,0.2);
+    }
+    .nav-link-red:hover { background: #e03540; color: #fff; }
+
+    /* ── Container ─────────────────────────── */
+    .container    { max-width: 1120px; margin: 0 auto; padding: 0 24px; }
+    .container-sm { max-width: 700px;  margin: 0 auto; padding: 0 24px; }
+
+    /* ── Page Hero ─────────────────────────── */
+    .page-hero {
+      background: var(--primary);
+      padding: 44px 0 40px;
+      border-bottom: 3px solid var(--secondary);
+    }
+    .hero-label {
+      display: inline-flex; align-items: center; gap: 6px;
+      font-size: 0.71rem; font-weight: 700;
+      color: rgba(255,255,255,0.6);
+      background: rgba(255,255,255,0.1);
+      border: 1px solid rgba(255,255,255,0.15);
+      padding: 4px 10px; border-radius: 99px;
+      letter-spacing: 0.07em; text-transform: uppercase;
+      margin-bottom: 14px;
+    }
+    .page-hero h1 {
+      font-size: 1.9rem; font-weight: 800;
+      color: #fff; letter-spacing: -0.03em;
+      line-height: 1.15; margin-bottom: 8px;
+    }
+    .page-hero p { color: rgba(255,255,255,0.6); font-size: 0.92rem; }
+
+    /* ── Cards ─────────────────────────────── */
+    .card {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: var(--radius-lg);
+      box-shadow: var(--shadow-sm);
+      transition: box-shadow 0.2s, border-color 0.2s;
+    }
+    .card:hover { box-shadow: var(--shadow); border-color: var(--border-hi); }
+    .card-header {
+      padding: 18px 22px;
+      border-bottom: 1px solid var(--border);
+      display: flex; align-items: center; gap: 12px;
+    }
+    .card-icon {
+      width: 34px; height: 34px; border-radius: var(--radius-sm);
+      display: flex; align-items: center; justify-content: center;
+      font-size: 0.95rem; flex-shrink: 0;
+    }
+    .card-title   { font-size: 0.9rem; font-weight: 700; color: var(--text); }
+    .card-subtitle{ font-size: 0.75rem; color: var(--text-3); }
+    .card-body    { padding: 22px; }
+
+    /* ── Vuln Tag ───────────────────────────── */
+    .vtag {
+      display: inline-flex; align-items: center; gap: 4px;
+      font-size: 0.65rem; font-weight: 700;
+      padding: 2px 7px; border-radius: 99px;
+      letter-spacing: 0.06em; text-transform: uppercase;
+      font-family: var(--mono);
+      background: var(--tertiary-light);
+      color: var(--tertiary);
+      border: 1px solid rgba(255,65,77,0.2);
+    }
+
+    /* ── Info Boxes ─────────────────────────── */
+    .info-box {
+      padding: 13px 16px; border-radius: var(--radius);
+      font-size: 0.83rem;
+      display: flex; gap: 11px;
+    }
+    .info-box.accent  { background: var(--secondary-light); border: 1px solid rgba(10,88,202,0.2); color: var(--secondary); }
+    .info-box.danger  { background: var(--tertiary-light);  border: 1px solid rgba(255,65,77,0.2);  color: var(--tertiary); }
+    .info-box.success { background: var(--green-light);     border: 1px solid rgba(22,163,74,0.2);  color: var(--green); }
+    .info-box.primary { background: var(--primary-light);   border: 1px solid rgba(0,40,85,0.15);   color: var(--primary); }
+
+    /* ── Form Controls ──────────────────────── */
+    label {
+      display: block; font-size: 0.82rem; font-weight: 600;
+      color: var(--text); margin-bottom: 7px;
+    }
+    .input, textarea {
+      width: 100%;
+      background: var(--surface);
+      border: 1.5px solid var(--border);
+      border-radius: var(--radius-sm);
+      color: var(--text);
+      font-family: inherit; font-size: 0.9rem;
+      padding: 10px 13px; outline: none;
+      transition: border-color 0.15s, box-shadow 0.15s;
+      display: block;
+    }
+    .input::placeholder, textarea::placeholder { color: var(--text-3); }
+    .input:focus, textarea:focus {
+      border-color: var(--secondary);
+      box-shadow: 0 0 0 3px rgba(10,88,202,0.12);
+    }
+    textarea { resize: vertical; min-height: 130px; }
+    .field { margin-bottom: 20px; }
+    .field-hint { font-size: 0.75rem; color: var(--text-3); margin-top: 5px; }
+
+    /* ── Buttons ────────────────────────────── */
+    .btn {
+      display: inline-flex; align-items: center; gap: 7px;
+      font-family: inherit; font-size: 0.875rem; font-weight: 600;
+      padding: 9px 20px; border-radius: var(--radius-sm);
+      border: 1.5px solid transparent;
+      cursor: pointer; transition: all 0.15s;
+      text-decoration: none; white-space: nowrap; line-height: 1;
+    }
+    .btn-primary   { background: var(--primary);   color: #fff; border-color: var(--primary); }
+    .btn-primary:hover { background: var(--primary-mid); border-color: var(--primary-mid); }
+
+    .btn-secondary { background: var(--secondary); color: #fff; border-color: var(--secondary); }
+    .btn-secondary:hover { background: #0848a8; }
+
+    .btn-outlined  { background: transparent; color: var(--primary); border-color: var(--primary); }
+    .btn-outlined:hover { background: var(--primary-light); }
+
+    .btn-danger    { background: var(--tertiary); color: #fff; border-color: var(--tertiary); }
+    .btn-danger:hover { background: #e03540; }
+
+    .btn-ghost     { background: transparent; color: var(--text-2); border-color: var(--border); }
+    .btn-ghost:hover { background: var(--neutral-light); border-color: var(--border-hi); }
+
+    .btn-sm        { font-size: 0.78rem; padding: 6px 13px; }
+    .btn-full      { width: 100%; justify-content: center; }
+
+    /* ── Badges ─────────────────────────────── */
+    .badge {
+      display: inline-flex; align-items: center; gap: 4px;
+      font-size: 0.7rem; font-weight: 600;
+      padding: 3px 9px; border-radius: 99px; border: 1px solid transparent;
+    }
+    .badge-primary { background: var(--primary-light); color: var(--primary); border-color: rgba(0,40,85,0.15); }
+    .badge-blue    { background: var(--secondary-light); color: var(--secondary); border-color: rgba(10,88,202,0.2); }
+    .badge-green   { background: var(--green-light); color: var(--green); border-color: rgba(22,163,74,0.2); }
+    .badge-red     { background: var(--tertiary-light); color: var(--tertiary); border-color: rgba(255,65,77,0.2); }
+    .badge-neutral { background: var(--neutral-light); color: var(--neutral); border-color: rgba(79,79,79,0.15); }
+
+    /* ── Table ──────────────────────────────── */
+    .table-wrap { overflow-x: auto; }
+    table { width: 100%; border-collapse: collapse; }
+    th {
+      padding: 10px 16px; text-align: left;
+      font-size: 0.72rem; font-weight: 700;
+      color: var(--text-3); text-transform: uppercase;
+      letter-spacing: 0.06em; border-bottom: 2px solid var(--border);
+      background: #fafbfc; white-space: nowrap;
+    }
+    td {
+      padding: 13px 16px; font-size: 0.875rem;
+      border-bottom: 1px solid var(--border);
+      vertical-align: middle;
+    }
+    tr:last-child td { border-bottom: none; }
+    tr:hover td { background: #fafbfc; }
+
+    /* ── Stat Card ──────────────────────────── */
+    .stat-card {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: var(--radius-lg);
+      box-shadow: var(--shadow-sm);
+      padding: 22px;
+    }
+    .stat-value { font-size: 2rem; font-weight: 800; letter-spacing: -0.04em; line-height: 1; margin-bottom: 5px; }
+    .stat-label { font-size: 0.8rem; color: var(--text-3); font-weight: 500; }
+
+    /* ── Alerts ─────────────────────────────── */
+    .alert-success {
+      background: var(--green-light); border: 1px solid rgba(22,163,74,0.25);
+      border-radius: var(--radius); padding: 13px 16px;
+      font-size: 0.88rem; color: var(--green);
+      display: flex; align-items: center; gap: 10px;
+    }
+    .alert-error {
+      background: var(--tertiary-light); border: 1px solid rgba(255,65,77,0.25);
+      border-radius: var(--radius); padding: 13px 16px;
+      font-size: 0.88rem; color: var(--tertiary);
+      display: flex; align-items: center; gap: 10px;
+    }
+
+    /* ── Report Content ─────────────────────── */
+    .report-content {
+      background: var(--bg); border: 1px solid var(--border);
+      border-radius: var(--radius-sm); padding: 13px 15px;
+      font-size: 0.88rem; color: var(--text-2); line-height: 1.75;
+    }
+
+    code {
+      font-family: var(--mono); font-size: 0.82em;
+      background: var(--neutral-light); padding: 2px 6px;
+      border-radius: 4px; color: var(--primary);
+    }
+    code.danger { background: var(--tertiary-light); color: var(--tertiary); }
+    code.blue   { background: var(--secondary-light); color: var(--secondary); }
+
+    .divider { height: 1px; background: var(--border); margin: 20px 0; }
+    .divider-text {
+      display: flex; align-items: center; gap: 12px;
+      font-size: 0.75rem; color: var(--text-3); font-weight: 500;
+    }
+    .divider-text::before, .divider-text::after { content:''; flex:1; height:1px; background:var(--border); }
+
+    /* ── Footer ─────────────────────────────── */
+    footer {
+      background: var(--primary);
+      border-top: 3px solid var(--secondary);
+      padding: 20px 24px;
+    }
+    .footer-inner {
+      max-width: 1120px; margin: 0 auto;
+      display: flex; align-items: center; justify-content: space-between;
+      flex-wrap: wrap; gap: 10px;
+    }
+    .footer-brand { font-size: 0.82rem; font-weight: 700; color: rgba(255,255,255,0.8); }
+    .footer-note  { font-size: 0.75rem; color: rgba(255,255,255,0.4); }
+
+    /* ── Grid Utils ─────────────────────────── */
+    .grid-2 { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; }
+    .grid-3 { display: grid; grid-template-columns: repeat(3,1fr); gap: 16px; }
+    .flex   { display: flex; }
+    .flex-col { display: flex; flex-direction: column; }
+    .items-center { align-items: center; }
+    .items-start  { align-items: flex-start; }
+    .justify-between { justify-content: space-between; }
+    .gap-2 { gap: 8px; }  .gap-3 { gap: 12px; }  .gap-4 { gap: 16px; }
+    .mt-2 { margin-top: 8px; } .mt-3 { margin-top: 12px; } .mt-4 { margin-top: 16px; } .mt-6 { margin-top: 24px; }
+    .mb-4 { margin-bottom: 16px; } .mb-6 { margin-bottom: 24px; }
+    .w-full { width: 100%; }
+    .text-sm { font-size: 0.85rem; }
+    .text-xs { font-size: 0.75rem; }
+    .font-mono { font-family: var(--mono); }
+    .font-semibold { font-weight: 600; }
+    .truncate { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+
+    @media (max-width: 680px) {
+      .grid-2, .grid-3 { grid-template-columns: 1fr; }
+      .page-hero h1 { font-size: 1.4rem; }
+    }
+  </style>
+  {% block extra_head %}{% endblock %}
+</head>
+<body>
+
+  <!-- CTF Warning Strip -->
+  <div class="ctf-strip">
+    ⚠ &nbsp; Aplikasi CTF — Sengaja rentan untuk edukasi &nbsp;|&nbsp;
+    Vuln: <code>SQL Injection</code> &amp; <code>Stored XSS</code> &nbsp;|&nbsp;
+    Jangan deploy ke produksi
+  </div>
+
+  <!-- Navbar -->
+  <nav class="navbar">
+    <div class="navbar-inner">
+      <!-- Logo -->
+      <a class="nav-logo" href="/">
+        <div class="logo-mark">
+          <i class="bi bi-shield-fill-check" style="color:var(--primary); font-size:1.3rem;"></i>
+        </div>
+        <div class="logo-text">
+          <div class="logo-name">LaporAman</div>
+          <div class="logo-sub">Integrity System</div>
+        </div>
+      </a>
+
+      <!-- Nav Links -->
+      <div class="nav-links">
+        <a href="/" class="nav-link {% if request.endpoint == 'index' %}active{% endif %}">
+          <i class="bi bi-house"></i> Beranda
+        </a>
+        <a href="/laporan" class="nav-link {% if request.endpoint == 'daftar_laporan' %}active{% endif %}">
+          <i class="bi bi-list-ul"></i> Laporan
+        </a>
+        {% if session.get('admin_logged_in') %}
+          <a href="/admin" class="nav-link {% if request.endpoint == 'admin_dashboard' %}active{% endif %}">
+            <i class="bi bi-speedometer2"></i> Admin
+          </a>
+          <a href="/admin/logout" class="nav-link">
+            <i class="bi bi-box-arrow-right"></i> Logout
+          </a>
+        {% else %}
+          <a href="/admin/login" class="nav-link nav-link-red">
+            <i class="bi bi-shield-lock"></i> Admin Login
+          </a>
+        {% endif %}
+      </div>
+    </div>
+  </nav>
+
+  <main>{% block content %}{% endblock %}</main>
+
+  <footer>
+    <div class="footer-inner">
+      <span class="footer-brand">🛡 LaporAman Integrity System</span>
+      <span class="footer-note">CTF Educational App &bull; Sengaja rentan &bull; Jangan gunakan di produksi</span>
+    </div>
+  </footer>
+
+  {% block extra_js %}{% endblock %}
+</body>
+</html>

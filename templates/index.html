@@ -1,0 +1,131 @@
+{% extends "base.html" %}
+{% block title %}Beranda — LaporAman{% endblock %}
+
+{% block content %}
+
+<div class="page-hero">
+  <div class="container">
+    <div class="hero-label"><i class="bi bi-megaphone-fill"></i> Sampaikan Laporan</div>
+    <h1>Apa yang ingin Anda laporkan?</h1>
+    <p>Laporan Anda akan tercatat dan dapat dilihat secara publik.</p>
+  </div>
+</div>
+
+<div class="container" style="padding: 40px 24px 60px;">
+  <div style="display:grid; grid-template-columns:1fr 340px; gap:28px; align-items:start;">
+
+    <!-- Form -->
+    <div>
+      {% if success %}
+      <div class="alert-success mb-4">
+        <i class="bi bi-check-circle-fill"></i>
+        Laporan berhasil dikirim! &nbsp;
+        <a href="/laporan" style="color:var(--green); font-weight:700;">Lihat semua laporan →</a>
+      </div>
+      {% endif %}
+
+      <div class="card">
+        <div class="card-header">
+          <div class="card-icon" style="background:var(--primary-light); color:var(--primary);">
+            <i class="bi bi-file-earmark-text-fill"></i>
+          </div>
+          <div>
+            <div class="card-title">Formulir Pengaduan</div>
+            <div class="card-subtitle">Semua kolom wajib diisi</div>
+          </div>
+        </div>
+        <div class="card-body">
+          <form method="POST" action="/">
+
+            <div class="field">
+              <label for="nama_pelapor"><i class="bi bi-person me-1"></i>Nama Lengkap</label>
+              <input class="input" type="text" id="nama_pelapor" name="nama_pelapor"
+                     placeholder="Masukkan nama Anda" required />
+            </div>
+
+            <div class="field">
+              <label for="judul"><i class="bi bi-tag me-1"></i>Judul Laporan</label>
+              <input class="input" type="text" id="judul" name="judul"
+                     placeholder="Ringkasan singkat permasalahan" required />
+            </div>
+
+            <div class="field">
+              <label for="isi_laporan" style="display:flex; align-items:center; gap:8px;">
+                <span><i class="bi bi-chat-left-text me-1"></i>Isi Laporan</span>
+                <span class="vtag"><i class="bi bi-bug"></i> XSS Point</span>
+              </label>
+              <textarea id="isi_laporan" name="isi_laporan"
+                        placeholder="Deskripsikan permasalahan secara detail..." required></textarea>
+              <div class="field-hint">⚠ Field ini tidak disanitasi — rentan Stored XSS</div>
+            </div>
+
+            <div style="display:flex; justify-content:space-between; align-items:center; margin-top:24px;">
+              <a href="/laporan" class="btn btn-ghost"><i class="bi bi-list-ul"></i> Lihat Laporan</a>
+              <button type="submit" class="btn btn-primary"><i class="bi bi-send"></i> Kirim Laporan</button>
+            </div>
+          </form>
+        </div>
+      </div>
+    </div>
+
+    <!-- Sidebar -->
+    <div style="display:flex; flex-direction:column; gap:14px;">
+
+      <!-- XSS Hint -->
+      <div class="card">
+        <div class="card-header">
+          <div class="card-icon" style="background:var(--tertiary-light); color:var(--tertiary);">
+            <i class="bi bi-bug-fill"></i>
+          </div>
+          <div>
+            <div class="card-title" style="color:var(--tertiary);">VULN #2 — Stored XSS</div>
+            <div class="card-subtitle">Execution point: halaman Laporan</div>
+          </div>
+        </div>
+        <div class="card-body" style="display:flex; flex-direction:column; gap:10px; font-size:0.82rem; color:var(--text-2);">
+          <p>Input disimpan <strong>mentah</strong> ke database, lalu di-render dengan
+            <code class="danger">{{ '{{' }} ... | safe {{ '}}' }}</code> — XSS tereksekusi saat halaman dibuka.</p>
+          <div>
+            <div style="font-size:0.7rem; text-transform:uppercase; letter-spacing:0.06em; font-weight:700; color:var(--text-3); margin-bottom:6px;">Payload contoh:</div>
+            <code class="danger" style="display:block; padding:8px; border-radius:6px; font-size:0.74rem; line-height:1.7;">
+              &lt;script&gt;alert('XSS! Cookie: '+document.cookie)&lt;/script&gt;
+            </code>
+          </div>
+          <div>
+            <code class="danger" style="display:block; padding:8px; border-radius:6px; font-size:0.74rem; line-height:1.7;">
+              &lt;img src=x onerror="alert('XSS!')"&gt;
+            </code>
+          </div>
+        </div>
+      </div>
+
+      <!-- Info Card -->
+      <div class="card">
+        <div class="card-body" style="font-size:0.82rem; color:var(--text-2);">
+          <div style="font-weight:700; color:var(--primary); margin-bottom:10px; display:flex; align-items:center; gap:7px;">
+            <i class="bi bi-info-circle-fill" style="color:var(--secondary);"></i> Cara Kerja
+          </div>
+          <p>Laporan tersimpan ke SQLite dan ditampilkan publik di halaman Daftar Laporan. Input sama sekali tidak disanitasi.</p>
+          <a href="/laporan" class="btn btn-outlined btn-sm" style="margin-top:12px; align-self:flex-start;">
+            <i class="bi bi-arrow-right"></i> Buka Daftar Laporan
+          </a>
+        </div>
+      </div>
+
+      <!-- Stats -->
+      <div style="display:grid; grid-template-columns:1fr 1fr; gap:10px;">
+        <div class="stat-card" style="text-align:center; padding:16px;">
+          <div class="stat-value" style="font-size:1.4rem; color:var(--secondary);">24/7</div>
+          <div class="stat-label">Aktif</div>
+        </div>
+        <div class="stat-card" style="text-align:center; padding:16px;">
+          <div class="stat-value" style="font-size:1.4rem; color:var(--green);">Gratis</div>
+          <div class="stat-label">Tanpa biaya</div>
+        </div>
+      </div>
+    </div>
+
+  </div>
+</div>
+
+{% endblock %}
