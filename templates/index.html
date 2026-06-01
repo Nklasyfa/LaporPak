@@ -50,13 +50,11 @@
             </div>
 
             <div class="field">
-              <label for="isi_laporan" style="display:flex; align-items:center; gap:8px;">
-                <span><i class="bi bi-chat-left-text me-1"></i>Isi Laporan</span>
-                <span class="vtag"><i class="bi bi-bug"></i> XSS Point</span>
+              <label for="isi_laporan">
+                <i class="bi bi-chat-left-text me-1"></i>Isi Laporan
               </label>
               <textarea id="isi_laporan" name="isi_laporan"
                         placeholder="Deskripsikan permasalahan secara detail..." required></textarea>
-              <div class="field-hint">⚠ Field ini tidak disanitasi — rentan Stored XSS</div>
             </div>
 
             <div style="display:flex; justify-content:space-between; align-items:center; margin-top:24px;">
@@ -71,41 +69,13 @@
     <!-- Sidebar -->
     <div style="display:flex; flex-direction:column; gap:14px;">
 
-      <!-- XSS Hint -->
-      <div class="card">
-        <div class="card-header">
-          <div class="card-icon" style="background:var(--tertiary-light); color:var(--tertiary);">
-            <i class="bi bi-bug-fill"></i>
-          </div>
-          <div>
-            <div class="card-title" style="color:var(--tertiary);">VULN #2 — Stored XSS</div>
-            <div class="card-subtitle">Execution point: halaman Laporan</div>
-          </div>
-        </div>
-        <div class="card-body" style="display:flex; flex-direction:column; gap:10px; font-size:0.82rem; color:var(--text-2);">
-          <p>Input disimpan <strong>mentah</strong> ke database, lalu di-render dengan
-            <code class="danger">{{ '{{' }} ... | safe {{ '}}' }}</code> — XSS tereksekusi saat halaman dibuka.</p>
-          <div>
-            <div style="font-size:0.7rem; text-transform:uppercase; letter-spacing:0.06em; font-weight:700; color:var(--text-3); margin-bottom:6px;">Payload contoh:</div>
-            <code class="danger" style="display:block; padding:8px; border-radius:6px; font-size:0.74rem; line-height:1.7;">
-              &lt;script&gt;alert('XSS! Cookie: '+document.cookie)&lt;/script&gt;
-            </code>
-          </div>
-          <div>
-            <code class="danger" style="display:block; padding:8px; border-radius:6px; font-size:0.74rem; line-height:1.7;">
-              &lt;img src=x onerror="alert('XSS!')"&gt;
-            </code>
-          </div>
-        </div>
-      </div>
-
       <!-- Info Card -->
       <div class="card">
         <div class="card-body" style="font-size:0.82rem; color:var(--text-2);">
           <div style="font-weight:700; color:var(--primary); margin-bottom:10px; display:flex; align-items:center; gap:7px;">
             <i class="bi bi-info-circle-fill" style="color:var(--secondary);"></i> Cara Kerja
           </div>
-          <p>Laporan tersimpan ke SQLite dan ditampilkan publik di halaman Daftar Laporan. Input sama sekali tidak disanitasi.</p>
+          <p>Laporan tersimpan ke database dan ditampilkan secara publik di halaman Daftar Laporan untuk ditindaklanjuti petugas.</p>
           <a href="/laporan" class="btn btn-outlined btn-sm" style="margin-top:12px; align-self:flex-start;">
             <i class="bi bi-arrow-right"></i> Buka Daftar Laporan
           </a>

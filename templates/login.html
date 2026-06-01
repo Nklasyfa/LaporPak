@@ -38,54 +38,6 @@
       <div style="font-size:0.83rem; color:var(--text-3);">LaporAman Integrity System</div>
     </div>
 
-    <!-- SQLi Hint Card -->
-    <div class="card">
-      <div class="card-header" style="padding:14px 18px;">
-        <div class="card-icon" style="background:var(--tertiary-light); color:var(--tertiary);">
-          <i class="bi bi-database-exclamation"></i>
-        </div>
-        <div>
-          <div class="card-title" style="color:var(--tertiary);">VULN #1 — SQL Injection</div>
-          <div class="card-subtitle">Login Bypass via raw f-string query</div>
-        </div>
-      </div>
-      <div class="card-body" style="padding:14px 18px; display:flex; flex-direction:column; gap:10px;">
-        <div style="font-size:0.8rem; color:var(--text-2); line-height:1.6;">
-          Query login menggunakan <code>f-string</code> tanpa prepared statement — input dimasukkan langsung ke SQL.
-        </div>
-
-        <!-- Payload display -->
-        <div style="background:var(--bg); border:1px solid var(--border); border-radius:8px; padding:12px; font-size:0.78rem; font-family:var(--mono);">
-          <div style="color:var(--text-3); font-size:0.68rem; text-transform:uppercase; letter-spacing:0.06em; font-weight:700; margin-bottom:8px;">Payload bypass:</div>
-          <div><span style="color:var(--text-3);">username:</span> <span style="color:var(--tertiary); font-weight:600;">admin' OR '1'='1' --</span></div>
-          <div style="margin-top:4px;"><span style="color:var(--text-3);">password:</span> <span style="color:var(--green); font-style:italic;">apapun</span></div>
-        </div>
-
-        <div style="background:var(--bg); border:1px solid var(--border); border-radius:8px; padding:10px 12px;">
-          <div style="font-size:0.68rem; color:var(--text-3); font-weight:700; text-transform:uppercase; letter-spacing:0.05em; margin-bottom:4px;">Query yang terbentuk:</div>
-          <code style="font-size:0.7rem; line-height:1.7; display:block; word-break:break-all; color:var(--primary); background:transparent; padding:0;">
-            SELECT * FROM users WHERE username='admin' OR '1'='1' <span style="color:var(--tertiary);">--</span>'
-          </code>
-        </div>
-
-        <!-- Quick payload buttons -->
-        <div style="display:flex; gap:6px; flex-wrap:wrap;">
-          <button onclick="fillPayload(&#34;admin' OR '1'='1' --&#34;,'bypass')"
-                  class="btn btn-danger btn-sm">
-            <i class="bi bi-lightning-fill"></i> OR '1'='1'
-          </button>
-          <button onclick="fillPayload(&#34;' OR 1=1 --&#34;,'x')"
-                  class="btn btn-danger btn-sm">
-            <i class="bi bi-lightning-fill"></i> 1=1 Bypass
-          </button>
-          <button onclick="fillPayload('admin','admin123')"
-                  class="btn btn-ghost btn-sm">
-            <i class="bi bi-key"></i> Default Creds
-          </button>
-        </div>
-      </div>
-    </div>
-
     <!-- Login Form Card -->
     <div class="card">
       <div class="card-header">
@@ -108,12 +60,9 @@
         <form method="POST" action="/admin/login" id="form-login">
 
           <div class="field">
-            <label for="username" style="display:flex; align-items:center; gap:7px;">
-              Username
-              <span class="vtag" style="font-size:0.6rem;"><i class="bi bi-bug"></i> SQLi</span>
-            </label>
+            <label for="username">Username</label>
             <input class="input" type="text" id="username" name="username"
-                   placeholder="Username atau SQLi payload..." autocomplete="off" spellcheck="false" />
+                   placeholder="Masukkan username" autocomplete="off" spellcheck="false" />
           </div>
 
           <div class="field">
@@ -125,7 +74,7 @@
               </button>
             </div>
             <input class="input" type="password" id="password" name="password"
-                   placeholder="Password (diabaikan jika SQLi berhasil)" autocomplete="off" />
+                   placeholder="Masukkan password" autocomplete="off" />
           </div>
 
           <button type="submit" class="btn btn-primary btn-full" style="margin-top:8px;">
@@ -133,22 +82,6 @@
           </button>
 
         </form>
-
-        <div class="divider-text" style="margin-top:18px;">atau</div>
-
-        <!-- Default credentials note -->
-        <div style="margin-top:14px; padding:12px 14px; background:var(--bg); border:1px solid var(--border); border-radius:8px;">
-          <div style="font-size:0.7rem; font-weight:700; text-transform:uppercase; letter-spacing:0.05em; color:var(--text-3); margin-bottom:8px;">
-            <i class="bi bi-database me-1"></i> Kredensial di Database
-          </div>
-          <div style="font-size:0.8rem; font-family:var(--mono); display:flex; flex-direction:column; gap:3px;">
-            <span><span style="color:var(--text-3);">admin</span> / <span style="color:var(--secondary);">admin123</span></span>
-            <span><span style="color:var(--text-3);">moderator</span> / <span style="color:var(--secondary);">mod2024</span></span>
-          </div>
-          <div style="font-size:0.72rem; color:var(--tertiary); margin-top:8px; font-weight:500;">
-            ⚠ Password disimpan sebagai hash — login normal via query akan gagal! Gunakan SQLi bypass.
-          </div>
-        </div>
 
       </div>
     </div>
@@ -169,16 +102,6 @@
     const showing = pw.type === 'text';
     pw.type = showing ? 'password' : 'text';
     icon.className = showing ? 'bi bi-eye' : 'bi bi-eye-slash';
-  }
-  function fillPayload(user, pass) {
-    const u = document.getElementById('username');
-    const p = document.getElementById('password');
-    u.value = user; p.value = pass;
-    [u, p].forEach(f => {
-      f.style.borderColor = 'var(--secondary)';
-      f.style.boxShadow = '0 0 0 3px rgba(10,88,202,0.12)';
-      setTimeout(() => { f.style.borderColor = ''; f.style.boxShadow = ''; }, 900);
-    });
   }
 </script>
 {% endblock %}

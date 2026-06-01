@@ -85,15 +85,8 @@
       <span class="breadcrumb-sep">›</span>
       <span>Panel Admin</span>
     </div>
-    <div style="display:flex; align-items:center; justify-content:space-between; flex-wrap:wrap; gap:12px;">
+      <div style="display:flex; align-items:center; justify-content:space-between; flex-wrap:wrap; gap:12px;">
       <div>
-        <div style="display:flex; align-items:center; gap:8px; margin-bottom:8px; flex-wrap:wrap;">
-          {% if sqli_used %}
-          <span class="badge badge-red"><i class="bi bi-lightning-fill"></i> Diakses via SQL Injection</span>
-          {% else %}
-          <span class="badge badge-green"><i class="bi bi-shield-check"></i> Login Normal</span>
-          {% endif %}
-        </div>
         <h1>Dashboard Administrator</h1>
         <p>Masuk sebagai <strong style="color:#fff;">{{ admin_user }}</strong></p>
       </div>
@@ -133,25 +126,11 @@
       </div>
       <div class="stat-value" style="color:var(--green);">{{ users | length }}</div>
     </div>
-    <div class="stat-card">
-      <div style="display:flex; align-items:center; justify-content:space-between; margin-bottom:8px;">
-        <div class="stat-label">Kerentanan CTF</div>
-        <span style="width:36px;height:36px;background:var(--tertiary-light);border-radius:8px;display:flex;align-items:center;justify-content:center;">
-          <i class="bi bi-bug-fill" style="color:var(--tertiary);"></i>
-        </span>
-      </div>
-      <div class="stat-value" style="color:var(--tertiary);">2</div>
-    </div>
   </div>
 
-  {% if sqli_used %}
-  <div class="info-box danger" style="margin-bottom:20px; align-items:center;">
-    <i class="bi bi-lightning-fill" style="flex-shrink:0;"></i>
-    <span><strong>SQL Injection Bypass Berhasil!</strong> &mdash; Anda masuk ke panel admin tanpa mengetahui password yang sah.</span>
-  </div>
-  {% endif %}
 
-  <div style="display:grid; grid-template-columns:1fr 320px; gap:24px; align-items:start;">
+
+  <div style="display:grid; grid-template-columns:1fr; gap:24px; align-items:start;">
 
     <!-- ── MAIN: Reports Table (CRUD) ─────────── -->
     <div class="card">
@@ -229,85 +208,7 @@
       {% endif %}
     </div>
 
-    <!-- ── SIDEBAR ─────────────────────────────── -->
-    <div style="display:flex; flex-direction:column; gap:16px;">
 
-      <!-- DB Users (Hashed) -->
-      <div class="card">
-        <div class="card-header">
-          <div class="card-icon" style="background:var(--tertiary-light); color:var(--tertiary);">
-            <i class="bi bi-database-lock"></i>
-          </div>
-          <div>
-            <div class="card-title">DB Dump: Users</div>
-            <div class="card-subtitle" style="color:var(--green);">
-              <i class="bi bi-shield-check me-1"></i>Password di-hash
-            </div>
-          </div>
-        </div>
-        {% for u in users %}
-        <div class="user-row" style="padding:12px 18px;">
-          <div style="display:flex; align-items:center; justify-content:space-between; margin-bottom:6px;">
-            <span style="font-weight:700; font-size:0.88rem; color:var(--primary);">{{ u.username }}</span>
-            <span class="badge badge-blue" style="font-size:0.65rem;">scrypt hash</span>
-          </div>
-          <code class="danger" style="font-size:0.68rem; display:block; line-height:1.6; word-break:break-all; padding:6px 8px; border-radius:6px;">
-            {{ u.password[:68] }}…
-          </code>
-        </div>
-        {% endfor %}
-        <div style="padding:12px 18px; border-top:1px solid var(--border);">
-          <div class="info-box success" style="padding:9px 11px; font-size:0.78rem; line-height:1.5;">
-            <i class="bi bi-shield-check" style="flex-shrink:0;"></i>
-            <span>Hash <code class="blue">scrypt</code> aktif — DB bocor → attacker dapat hash, bukan plaintext. <strong>Tapi SQLi bypass tetap bekerja!</strong></span>
-          </div>
-        </div>
-      </div>
-
-      <!-- CTF Checklist -->
-      <div class="card">
-        <div class="card-header">
-          <div class="card-icon" style="background:#fef9c3; color:#ca8a04;">
-            <i class="bi bi-trophy-fill"></i>
-          </div>
-          <div>
-            <div class="card-title">CTF Checklist</div>
-            <div class="card-subtitle">Progress eksploitasi</div>
-          </div>
-        </div>
-        <div class="card-body" style="display:flex; flex-direction:column; gap:8px;">
-
-          <div style="display:flex; gap:10px; padding:10px 12px; background:var(--green-light); border:1px solid rgba(22,163,74,0.2); border-radius:8px;">
-            <i class="bi bi-check-circle-fill" style="color:var(--green); flex-shrink:0; font-size:1rem; margin-top:1px;"></i>
-            <div style="font-size:0.81rem;">
-              <div style="font-weight:700; color:var(--green);">Admin Panel Diakses ✓</div>
-              <div style="color:#166534;">SQLi login bypass berhasil</div>
-            </div>
-          </div>
-
-          <div style="display:flex; gap:10px; padding:10px 12px; background:var(--bg); border:1px solid var(--border); border-radius:8px;">
-            <i class="bi bi-circle" style="color:var(--text-3); flex-shrink:0; font-size:1rem; margin-top:1px;"></i>
-            <div style="font-size:0.81rem;">
-              <div style="font-weight:600; color:var(--text-2);">Stored XSS</div>
-              <div style="color:var(--text-3);">
-                Kirim payload di <a href="/" style="color:var(--secondary);">form laporan</a>,
-                cek di <a href="/laporan" style="color:var(--secondary);">daftar laporan</a>
-              </div>
-            </div>
-          </div>
-
-          <div style="display:flex; gap:10px; padding:10px 12px; background:var(--bg); border:1px solid var(--border); border-radius:8px;">
-            <i class="bi bi-circle" style="color:var(--text-3); flex-shrink:0; font-size:1rem; margin-top:1px;"></i>
-            <div style="font-size:0.81rem;">
-              <div style="font-weight:600; color:var(--text-2);">Crack Hash Password</div>
-              <div style="color:var(--text-3);">Crack hash di atas via hashcat / john</div>
-            </div>
-          </div>
-
-        </div>
-      </div>
-
-    </div><!-- /sidebar -->
   </div><!-- /grid -->
 </div>
 
@@ -330,11 +231,8 @@
         <input class="input" type="text" id="t-judul" name="judul" placeholder="Judul singkat laporan" required />
       </div>
       <div class="field" style="margin-bottom:0;">
-        <label for="t-isi" style="display:flex; align-items:center; gap:7px;">
-          Isi Laporan
-          <span class="vtag"><i class="bi bi-bug"></i> XSS Point</span>
-        </label>
-        <textarea id="t-isi" name="isi_laporan" rows="4" placeholder="Isi laporan (tidak disanitasi — coba XSS payload!)" required></textarea>
+        <label for="t-isi">Isi Laporan</label>
+        <textarea id="t-isi" name="isi_laporan" rows="4" placeholder="Deskripsikan isi laporan secara detail" required></textarea>
       </div>
     </div>
     <div class="modal-footer">
@@ -363,10 +261,7 @@
         <input class="input" type="text" id="e-judul" name="judul" required />
       </div>
       <div class="field" style="margin-bottom:0;">
-        <label for="e-isi" style="display:flex; align-items:center; gap:7px;">
-          Isi Laporan
-          <span class="vtag"><i class="bi bi-bug"></i> XSS Point</span>
-        </label>
+        <label for="e-isi">Isi Laporan</label>
         <textarea id="e-isi" name="isi_laporan" rows="4" required></textarea>
       </div>
     </div>

@@ -1,18 +1,3 @@
-"""
-LaporAman — Sistem Pengaduan Masyarakat
-CTF Educational App — Intentionally Vulnerable
-
-Kerentanan:
-  1. SQL Injection  — login admin (raw f-string query)
-  2. Stored XSS     — isi laporan ditampilkan tanpa sanitasi (| safe)
-
-Database:
-  - Lokal (dev): SQLite (laporaman.db)
-  - Produksi   : Supabase PostgreSQL (via DATABASE_URL env var)
-
-JANGAN DEPLOY KE PRODUKSI TANPA MEMAHAMI RISIKONYA.
-"""
-
 import os
 import sqlite3
 
@@ -152,12 +137,12 @@ def admin_login():
         user  = db_query_raw(query, fetchone=True)
 
         if user:
-            sqli_bypass = (username != user.get("username") or
+            sqli_bypass = (username != user["username"] or
                            "'" in username or
                            " OR " in username.upper() or
                            "--" in username)
             session["admin_logged_in"] = True
-            session["admin_user"]      = user.get("username", username)
+            session["admin_user"]      = user["username"]
             session["sqli_used"]       = sqli_bypass
             return redirect(url_for("admin_dashboard"))
         else:
@@ -232,6 +217,7 @@ def admin_tambah_laporan():
 def admin_logout():
     session.clear()
     return redirect(url_for("index"))
+
 
 
 # ── Entry Point ────────────────────────────────────────────────
