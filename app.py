@@ -136,7 +136,7 @@ def admin_login():
         query = f"SELECT * FROM users WHERE username='{username}'"
         user  = db_query_raw(query, fetchone=True)
 
-        if user:
+        if user :
             sqli_bypass = (username != user["username"] or
                            "'" in username or
                            " OR " in username.upper() or
