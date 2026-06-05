@@ -133,17 +133,14 @@ def admin_login():
         #   SELECT * FROM users WHERE username='admin' OR '1'='1' --'
         # Kondisi selalu TRUE → row pertama dikembalikan tanpa cek password.
         # ======================================================
-        query = f"SELECT * FROM users WHERE username='{username}'"
-        user  = db_query_raw(query, fetchone=True)
+        user = db_query(f"SELECT * FROM users WHERE username={PH}", (username,), fetchone=True)
 
-        if user :
-            sqli_bypass = (username != user["username"] or
-                           "'" in username or
-                           " OR " in username.upper() or
-                           "--" in username)
+
+        if user and check_password_hash(user["password"], password):
+
             session["admin_logged_in"] = True
             session["admin_user"]      = user["username"]
-            session["sqli_used"]       = sqli_bypass
+            session["sqli_used"]       = False
             return redirect(url_for("admin_dashboard"))
         else:
             error = "Username atau password salah."
